@@ -20,8 +20,8 @@ else
   R="$R" bash -c "$run"
 fi
 if command -v docker >/dev/null; then
-  # The target: minimal RHEL 8 (no unzip, no git), no network, extracted with
-  # platform-python, which drops exec bits.
+  # The target OS with no network. ubi8 has no unzip, so extract with
+  # platform-python (stricter: it also drops exec bits).
   log "RHEL 8 check (ubi8, --network none, platform-python unzip)"
   docker run --rm --network none --user "$(id -u):$(id -g)" -e HOME=/tmp \
     -v "$(dirname "$ZIP")":/in:ro registry.access.redhat.com/ubi8/ubi:8.10 bash -euc '

@@ -27,11 +27,9 @@ terraform init
 terraform plan
 ```
 
-Minimal RHEL 8 installs have no `unzip`. Either install it from the BaseOS
-media (`dnf install unzip`), or use the Python that RHEL 8 always ships:
-`/usr/libexec/platform-python -m zipfile -e nac-aci-airgap-*.zip .`
-(`setup.sh` restores the terraform exec bit that this drops). `git` is only
-needed to push the repo on; it's in the AppStream media.
+Needs only `unzip` and `git` (`dnf install unzip git`, from BaseOS/AppStream
+via Satellite). Nothing comes from EPEL or HashiCorp's repo; terraform and
+the providers ship in the zip.
 
 On STIG-hardened hosts, keep the directory off `noexec` mounts (often `/tmp`,
 sometimes `/home`). Terraform runs the provider binaries from `.terraform/`
