@@ -6,5 +6,6 @@ d=$(cd "$(dirname "${src:-$0}")" 2>/dev/null && pwd)
 [ -d "$d/providers" ] || d=$(pwd)/airgap
 sed "s#@MIRROR@#$d/providers#" "$d/terraformrc.tmpl" > "$d/../.terraformrc"
 export TF_CLI_CONFIG_FILE="$(cd "$d/.." && pwd)/.terraformrc"
-[ -x "$d/bin/linux_amd64/terraform" ] && export PATH="$d/bin/linux_amd64:$PATH"
+# unzip keeps the exec bit; python's zipfile (no-unzip fallback) drops it
+[ -f "$d/bin/linux_amd64/terraform" ] && chmod +x "$d/bin/linux_amd64/terraform" && export PATH="$d/bin/linux_amd64:$PATH"
 echo "TF_CLI_CONFIG_FILE=$TF_CLI_CONFIG_FILE"

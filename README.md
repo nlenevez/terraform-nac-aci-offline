@@ -12,20 +12,30 @@ run on an airgapped machine. No registry or internet access is needed.
 | netascode/utils | 2.0.3 | `airgap/providers/` (zip only) |
 | hashicorp/local | 2.9.1 | `airgap/providers/` (zip only) |
 
-Platforms bundled: `linux_amd64`, `windows_amd64`. `.terraform.lock.hcl` has
-hashes for both. Versions and platforms are set in `bundle.env`; see
-"Building the bundle".
+Target: **RHEL 8 x86_64** (`linux_amd64`). Terraform and all three providers
+are statically linked Go binaries, so there's no glibc or package dependency.
+Versions and platforms are set in `bundle.env`; see "Building the bundle".
 
-## Use (airgapped)
+## Use (airgapped, RHEL 8)
 
 ```sh
 sha256sum -c nac-aci-airgap-*.zip.sha256
-unzip nac-aci-airgap-*.zip && cd nac-aci
-. airgap/setup.sh                 # Windows: . .\airgap\setup.ps1
+unzip -q nac-aci-airgap-*.zip && cd nac-aci
+. airgap/setup.sh
 export ACI_URL=https://apic.example ACI_USERNAME=admin ACI_PASSWORD=...
 terraform init
 terraform plan
 ```
+
+Minimal RHEL 8 installs have no `unzip`. Either install it from the BaseOS
+media (`dnf install unzip`), or use the Python that RHEL 8 always ships:
+`/usr/libexec/platform-python -m zipfile -e nac-aci-airgap-*.zip .`
+(`setup.sh` restores the terraform exec bit that this drops). `git` is only
+needed to push the repo on; it's in the AppStream media.
+
+On STIG-hardened hosts, keep the directory off `noexec` mounts (often `/tmp`,
+sometimes `/home`). Terraform runs the provider binaries from `.terraform/`
+inside the repo.
 
 `setup.sh` writes `.terraformrc` with the absolute path to `airgap/providers`
 and points `TF_CLI_CONFIG_FILE` at it. It also puts the bundled terraform on

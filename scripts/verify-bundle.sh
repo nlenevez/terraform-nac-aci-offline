@@ -19,4 +19,18 @@ else
   log "no passwordless sudo: running without a network namespace"
   R="$R" bash -c "$run"
 fi
+if command -v docker >/dev/null; then
+  # The target: minimal RHEL 8 (no unzip, no git), no network, extracted with
+  # platform-python, which drops exec bits.
+  log "RHEL 8 check (ubi8, --network none, platform-python unzip)"
+  docker run --rm --network none --user "$(id -u):$(id -g)" -e HOME=/tmp \
+    -v "$(dirname "$ZIP")":/in:ro registry.access.redhat.com/ubi8/ubi:8.10 bash -euc '
+      cat /etc/redhat-release; cd /tmp
+      /usr/libexec/platform-python -m zipfile -e "/in/'"$(basename "$ZIP")"'" . && cd nac-aci
+      . airgap/setup.sh >/dev/null
+      terraform init -input=false -no-color | grep -E "Installed|Error|successfully"
+      terraform validate -no-color && terraform test -no-color | tail -1'
+else
+  log "docker not available: skipped RHEL 8 container check"
+fi
 log "bundle OK: offline init, validate, mocked plan, lock file unchanged"
