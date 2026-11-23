@@ -13,12 +13,13 @@ run on an airgapped machine. No registry or internet access is needed.
 | hashicorp/local | 2.9.1 | `airgap/providers/` (zip only) |
 
 Platforms bundled: `linux_amd64`, `windows_amd64`. `.terraform.lock.hcl` has
-hashes for both. To add another platform, such as `darwin_arm64`, pass an extra
-`-platform=` to both commands under "Refreshing" and add that terraform binary.
+hashes for both. Versions and platforms are set in `bundle.env`; see
+"Building the bundle".
 
 ## Use (airgapped)
 
 ```sh
+sha256sum -c nac-aci-airgap-*.zip.sha256
 unzip nac-aci-airgap-*.zip && cd nac-aci
 . airgap/setup.sh                 # Windows: . .\airgap\setup.ps1
 export ACI_URL=https://apic.example ACI_USERNAME=admin ACI_PASSWORD=...
@@ -55,12 +56,33 @@ The provider zips and terraform binaries are gitignored, so they don't bloat
 the repo. Keep the zip, or copy `airgap/providers` and `airgap/bin` alongside
 the repo.
 
-## Refreshing (connected side)
+## Building the bundle (connected side)
+
+Needs `bash`, `curl`, `gpg`, `unzip`, `zip`, `git` and internet access.
+Terraform is downloaded into `.cache/` automatically, checked against
+HashiCorp's GPG-signed SHA256SUMS.
 
 ```sh
-# module: replace vendor/nac-aci with the new tag's source
-curl -sL https://github.com/netascode/terraform-aci-nac-aci/archive/refs/tags/vX.Y.Z.tar.gz | tar xz
-terraform init -backend=false -upgrade
-terraform providers lock   -platform=linux_amd64 -platform=windows_amd64
-terraform providers mirror -platform=linux_amd64 -platform=windows_amd64 airgap/providers
+scripts/build-bundle.sh                    # -> dist/nac-aci-airgap-<date>-<sha>.zip + .sha256
+scripts/verify-bundle.sh dist/nac-aci-airgap-*.zip   # offline init/validate/test
 ```
+
+The build clones the **committed** HEAD into a staging dir, so the zip's
+`.git` is exactly what's in git. It refuses to run with uncommitted changes
+unless you pass `--allow-dirty`. Versions are set in `bundle.env`. The build
+fails if `.terraform.lock.hcl` is missing hashes for a platform in
+`PLATFORMS`.
+
+| Task | Command |
+|---|---|
+| New nac-aci release | `scripts/vendor-module.sh [X.Y.Z]` then `scripts/update-providers.sh` |
+| Newer providers | `scripts/update-providers.sh` |
+| Newer terraform | edit `TF_VERSION` in `bundle.env` |
+| Another platform | add it to `PLATFORMS` in `bundle.env`, then `scripts/update-providers.sh` |
+
+Commit after each of these, then rebuild.
+
+## Checking the YAML without an APIC
+
+`terraform test` plans against a mocked ACI provider
+(`tests/plan.tftest.hcl`). This works on the airgapped side too.

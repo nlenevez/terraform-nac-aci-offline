@@ -9,3 +9,5 @@ terraform.rc
 # airgap payload: lives in the zip, not in git
 airgap/providers/
 airgap/bin/
+.cache/
+dist/
