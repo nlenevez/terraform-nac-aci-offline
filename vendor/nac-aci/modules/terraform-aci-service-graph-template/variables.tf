@@ -1,0 +1,253 @@
+variable "tenant" {
+  description = "Tenant name."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,63}$", var.tenant))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 63."
+  }
+}
+
+variable "name" {
+  description = "Service graph template name."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.:-]{0,64}$", var.name))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "annotation" {
+  description = "Annotation value."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.annotation == null || can(regex("^[a-zA-Z0-9_.:-]{0,64}$", var.annotation))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "alias" {
+  description = "Alias."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.:-]{0,64}$", var.alias))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "description" {
+  description = "Description."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{0,128}$", var.description))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `\\`, `!`, `#`, `$`, `%`, `(`, `)`, `*`, `,`, `-`, `.`, `/`, `:`, `;`, `@`, ` `, `_`, `{`, `|`, }`, `~`, `?`, `&`, `+`. Maximum characters: 128."
+  }
+}
+
+variable "filter_between_nodes" {
+  description = "Filter between nodes. Choices: `allow-all`, `filters-from-contract`."
+  type        = string
+  default     = "allow-all"
+
+  validation {
+    condition     = contains(["allow-all", "filters-from-contract"], var.filter_between_nodes)
+    error_message = "Allowed values are `allow-all`, `filters-from-contract`."
+  }
+}
+
+variable "template_type" {
+  description = "Template type. Choices: `FW_TRANS`, `FW_ROUTED`, `ADC_ONE_ARM`, `ADC_TWO_ARM`, `OTHER`, `CLOUD_NATIVE_LB`, `CLOUD_VENDOR_LB`, `CLOUD_NATIVE_FW`, `CLOUD_VENDOR_FW`."
+  type        = string
+  default     = "OTHER"
+
+  validation {
+    condition     = contains(["FW_TRANS", "FW_ROUTED", "ADC_ONE_ARM", "ADC_TWO_ARM", "OTHER", "CLOUD_NATIVE_LB", "CLOUD_VENDOR_LB", "CLOUD_NATIVE_FW", "CLOUD_VENDOR_FW"], var.template_type)
+    error_message = "Allowed values are `FW_TRANS`, `FW_ROUTED`, `ADC_ONE_ARM`, `ADC_TWO_ARM`, `OTHER`, `CLOUD_NATIVE_LB`, `CLOUD_VENDOR_LB`, `CLOUD_NATIVE_FW` or `CLOUD_VENDOR_FW`."
+  }
+}
+
+variable "redirect" {
+  description = "Redirect."
+  type        = bool
+  default     = false
+}
+
+variable "share_encapsulation" {
+  description = "Share encapsulation."
+  type        = bool
+  default     = false
+}
+
+variable "device_name" {
+  description = "L4L7 device name. Required for legacy single-device mode, not used when `devices` is specified."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.:-]{0,64}$", var.device_name))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "device_tenant" {
+  description = "L4L7 device tenant name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.:-]{0,64}$", var.device_tenant))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "device_function" {
+  description = "L4L7 device function. Choices: `None`, `GoTo`, `GoThrough`, `L2`, `L1`."
+  type        = string
+  default     = "GoTo"
+
+  validation {
+    condition     = contains(["None", "GoTo", "GoThrough", "L2", "L1"], var.device_function)
+    error_message = "Allowed values are `None`, `GoTo`, `GoThrough`, `L2` or `L1`."
+  }
+}
+
+variable "device_copy" {
+  description = "L4L7 device copy function."
+  type        = bool
+  default     = false
+}
+
+variable "device_managed" {
+  description = "L4L7 managed device."
+  type        = bool
+  default     = false
+}
+
+variable "device_node_name" {
+  description = "L4L7 device function node name."
+  type        = string
+  default     = "N1"
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.:-]{0,64}$", var.device_node_name))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "device_adjacency_type" {
+  description = "L4L7 device adjacency type. Choices: `L2`, `L3`. Default is `L3`."
+  type        = string
+  default     = "L3"
+
+  validation {
+    condition     = contains(["L2", "L3"], var.device_adjacency_type)
+    error_message = "Allowed values are `L2` or `L3`."
+  }
+}
+
+variable "consumer_direct_connect" {
+  description = "Direct connect on consumer connection."
+  type        = bool
+  default     = false
+}
+
+variable "provider_direct_connect" {
+  description = "Direct connect on provider connection."
+  type        = bool
+  default     = false
+}
+
+variable "devices" {
+  description = "List of devices for multi-device service graph. When specified, legacy device variables are ignored."
+  type = list(object({
+    name          = string
+    tenant        = optional(string)
+    node_name     = optional(string)
+    template_type = optional(string)
+    function      = optional(string)
+    copy_device   = optional(bool)
+    managed       = optional(bool)
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for device in var.devices : can(regex("^[a-zA-Z0-9_.:-]{1,64}$", device.name))
+    ])
+    error_message = "Device name must match: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. 1-64 characters."
+  }
+
+  validation {
+    condition = alltrue([
+      for device in var.devices : device.node_name == null || can(regex("^[a-zA-Z0-9_.:-]{1,64}$", device.node_name))
+    ])
+    error_message = "Device node_name must match: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `:`, `-`. 1-64 characters."
+  }
+
+  validation {
+    condition = alltrue([
+      for device in var.devices : device.template_type == null || contains(["FW_TRANS", "FW_ROUTED", "ADC_ONE_ARM", "ADC_TWO_ARM", "OTHER", "CLOUD_NATIVE_LB", "CLOUD_VENDOR_LB", "CLOUD_NATIVE_FW", "CLOUD_VENDOR_FW"], device.template_type)
+    ])
+    error_message = "Device template_type must be one of: `FW_TRANS`, `FW_ROUTED`, `ADC_ONE_ARM`, `ADC_TWO_ARM`, `OTHER`, `CLOUD_NATIVE_LB`, `CLOUD_VENDOR_LB`, `CLOUD_NATIVE_FW`, `CLOUD_VENDOR_FW`."
+  }
+
+  validation {
+    condition = alltrue([
+      for device in var.devices : device.function == null || contains(["None", "GoTo", "GoThrough", "L2", "L1"], device.function)
+    ])
+    error_message = "Device function must be one of: `None`, `GoTo`, `GoThrough`, `L2`, `L1`."
+  }
+}
+
+variable "connections" {
+  description = "List of connections for multi-device service graph."
+  type = list(object({
+    consumer_node  = string
+    provider_node  = string
+    copy_node      = optional(string)
+    adjacency_type = optional(string)
+    unicast_route  = optional(bool)
+    direct_connect = optional(bool)
+  }))
+  default = []
+
+  validation {
+    condition = alltrue([
+      for conn in var.connections : conn.adjacency_type == null || contains(["L2", "L3"], conn.adjacency_type)
+    ])
+    error_message = "Connection adjacency_type must be one of: `L2`, `L3`."
+  }
+
+  validation {
+    condition     = length(var.connections) <= 10
+    error_message = "A service graph supports at most 10 connections (module walks the chain via an unrolled loop of depth 10)."
+  }
+
+  validation {
+    condition = length(var.connections) == 0 || length([
+      for conn in var.connections : conn if conn.consumer_node == "EPG-Consumer"
+    ]) == 1
+    error_message = "connections must include exactly one entry with `consumer_node: EPG-Consumer` (the chain start)."
+  }
+
+  validation {
+    condition = length(var.connections) == 0 || length([
+      for conn in var.connections : conn if conn.provider_node == "EPG-Provider"
+    ]) == 1
+    error_message = "connections must include exactly one entry with `provider_node: EPG-Provider` (the chain end)."
+  }
+
+  validation {
+    condition = length(distinct([
+      for conn in var.connections : conn.consumer_node
+    ])) == length(var.connections)
+    error_message = "Each `consumer_node` value must be unique across connections (service graph chain is linear; a node cannot appear as the consumer side of more than one connection)."
+  }
+}

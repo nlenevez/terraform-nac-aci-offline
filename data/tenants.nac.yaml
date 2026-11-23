@@ -1,0 +1,16 @@
+---
+apic:
+  tenants:
+    - name: EXAMPLE
+      vrfs:
+        - name: VRF1
+      bridge_domains:
+        - name: BD1
+          vrf: VRF1
+          subnets:
+            - ip: 10.1.1.1/24
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1

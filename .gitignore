@@ -1,0 +1,11 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!example.tfvars
+.terraformrc
+terraform.rc
+# airgap payload: lives in the zip, not in git
+airgap/providers/
+airgap/bin/
