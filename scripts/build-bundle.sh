@@ -16,6 +16,7 @@ S=$STAGE/nac-aci
 log "staging HEAD ($SHA)"
 git clone -q --no-hardlinks "$ROOT" "$S"
 git -C "$S" remote remove origin
+git -C "$S" checkout -q -B main      # CI checks out tags detached; always ship a main branch
 
 for p in $PLATFORMS; do
   log "terraform $TF_VERSION $p"

@@ -90,6 +90,14 @@ fails if `.terraform.lock.hcl` is missing hashes for a platform in
 
 Commit after each of these, then rebuild.
 
+### On GitHub
+
+`.github/workflows/release.yml` does the same on GitHub Actions. Push a tag
+(`git tag v2.1.0-1 && git push github v2.1.0-1`) and it builds, verifies
+(offline namespace + RHEL 8 container) and attaches the zip and `.sha256` to
+a Release. A manual run (`workflow_dispatch`) keeps the zip as a workflow
+artifact instead. Tag scheme: `v<module version>-<n>`.
+
 ## Checking the YAML without an APIC
 
 `terraform test` plans against a mocked ACI provider
