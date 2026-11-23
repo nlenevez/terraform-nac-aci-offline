@@ -39,6 +39,22 @@ inside the repo.
 and points `TF_CLI_CONFIG_FILE` at it. It also puts the bundled terraform on
 `PATH`. Run it again after you move the directory.
 
+### Troubleshooting `terraform init`
+
+- **Hundreds of lines like `- aci.aci_xxx in vendor/nac-aci/modules/...`** on
+  the first init. These are local: terraform links the module's ~240
+  submodules from `vendor/`. Nothing is downloaded. Later inits skip them.
+- **`Failed to query available provider packages ... registry.terraform.io`.**
+  `setup.sh` wasn't sourced in this shell, so terraform went to the internet
+  registry instead of `airgap/providers`. It only lasts for the shell that
+  sourced it. To make it permanent:
+  `echo ". $PWD/airgap/setup.sh >/dev/null" >> ~/.bashrc`
+- **Update checks.** `setup.sh` turns off terraform's call to
+  `checkpoint-api.hashicorp.com` (`disable_checkpoint` and
+  `CHECKPOINT_DISABLE=1`).
+- **Check what's in effect:** `echo $TF_CLI_CONFIG_FILE; which terraform`
+  should both point inside this directory.
+
 Edit `data/*.nac.yaml` to describe the fabric. Data model:
 <https://netascode.cisco.com/docs/data_models/apic/overview/>.
 
