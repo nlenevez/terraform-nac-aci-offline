@@ -21,7 +21,7 @@ Versions and platforms are set in `bundle.env`; see "Building the bundle".
 ```sh
 sha256sum -c nac-aci-airgap-*.zip.sha256
 unzip -q nac-aci-airgap-*.zip && cd nac-aci
-. airgap/setup.sh
+./airgap/setup.sh --install       # once: `terraform` now works in every shell
 export ACI_URL=https://apic.example ACI_USERNAME=admin ACI_PASSWORD=...
 terraform init
 terraform plan
@@ -35,25 +35,33 @@ On STIG-hardened hosts, keep the directory off `noexec` mounts (often `/tmp`,
 sometimes `/home`). Terraform runs the provider binaries from `.terraform/`
 inside the repo.
 
-`setup.sh` writes `.terraformrc` with the absolute path to `airgap/providers`
-and points `TF_CLI_CONFIG_FILE` at it. It also puts the bundled terraform on
-`PATH`. Run it again after you move the directory.
+`--install` writes `.terraformrc` (absolute path to `airgap/providers`) and a
+small `~/.local/bin/terraform` wrapper. The wrapper runs the bundled binary with
+that config and with update checks off. `~/.local/bin` is first on `PATH` on
+RHEL 8 by default. Re-run it after moving or re-extracting the directory. It
+replaces any other `terraform` you run as that user, and points it at this
+mirror.
+
+To set up just the current shell instead, use `source airgap/setup.sh`.
+Running it without `source` can't change your shell, so the script then prints
+these two options instead of silently doing nothing.
 
 ### Troubleshooting `terraform init`
 
 - **Hundreds of lines like `- aci.aci_xxx in vendor/nac-aci/modules/...`** on
   the first init. These are local: terraform links the module's ~240
   submodules from `vendor/`. Nothing is downloaded. Later inits skip them.
-- **`Failed to query available provider packages ... registry.terraform.io`.**
-  `setup.sh` wasn't sourced in this shell, so terraform went to the internet
-  registry instead of `airgap/providers`. It only lasts for the shell that
-  sourced it. To make it permanent:
-  `echo ". $PWD/airgap/setup.sh >/dev/null" >> ~/.bashrc`
-- **Update checks.** `setup.sh` turns off terraform's call to
+- **`terraform: command not found`, or
+  `Failed to query available provider packages ... registry.terraform.io`.**
+  This shell isn't using the bundle. Without it, terraform goes to the
+  internet registry instead of `airgap/providers`. Run
+  `./airgap/setup.sh --install` once, then open a new shell.
+- **Update checks.** The bundle turns off terraform's call to
   `checkpoint-api.hashicorp.com` (`disable_checkpoint` and
   `CHECKPOINT_DISABLE=1`).
-- **Check what's in effect:** `echo $TF_CLI_CONFIG_FILE; which terraform`
-  should both point inside this directory.
+- **Check what's in effect:** `which terraform` should be
+  `~/.local/bin/terraform` (or `airgap/bin/...` if sourced), and
+  `terraform version` should be 1.17.2.
 
 Edit `data/*.nac.yaml` to describe the fabric. Data model:
 <https://netascode.cisco.com/docs/data_models/apic/overview/>.

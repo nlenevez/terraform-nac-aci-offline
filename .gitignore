@@ -11,3 +11,4 @@ airgap/providers/
 airgap/bin/
 .cache/
 dist/
+.claude/

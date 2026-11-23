@@ -53,7 +53,7 @@ jobs:
             cat dist/*.sha256
             echo '```'
             echo
-            echo 'Use: `sha256sum -c *.sha256 && unzip -q nac-aci-airgap-*.zip && cd nac-aci && . airgap/setup.sh && terraform init`'
+            echo 'Use: `sha256sum -c *.sha256 && unzip -q nac-aci-airgap-*.zip && cd nac-aci && ./airgap/setup.sh --install && terraform init`'
           } > notes.md
           gh release create "$GITHUB_REF_NAME" dist/*.zip dist/*.sha256 \
             --title "nac-aci airgap $GITHUB_REF_NAME" --notes-file notes.md
